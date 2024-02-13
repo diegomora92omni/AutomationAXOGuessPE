@@ -1,0 +1,14 @@
+AccountCreation
+
+Test case #1: Verificar que un usuario no registrado pueda crear una cuenta
+Test case #2: Verificar que un usuario registrado no pueda crear una cuenta
+Test case #3: Verificar creación de cuenta sin suscribirse al boletín
+Test case #4: Verificar que no se pueda crear cuenta cuando haya un campo obligatorio sin diligenciar
+Test case #5: Verificar que no se pueda crear cuenta cuando el identification_number no sea valido
+Test case #6: Verificar que la contraseña este oculta por defecto
+Test case #7: Verificar que la contraseña sea visible cuando el usuario lo solicite
+Test case #8: Verificar mensaje de error cuando la contraseña no coincide
+/Test case #9: Verificar que no se pueda crear cuenta con un email registrado
+/Test case #10: Verificar que se presente mensaje de error cuando la contraseña no cumpla con el mínimo de longitud
+/Test case #11: Verificar que se presente mensaje de error cuando la contraseña no cumpla con las diferentes clases de caracteres
+/Test case #12: Verificar creación de cuenta sin seleccionar Recordarme ¿Qué es esto?

@@ -14,6 +14,7 @@
     "cypress": "^13.5.1",
     "cypress-mochawesome-reporter": "^3.6.0",
     "cypress-xpath": "^2.0.1",
+    "faker": "^5.5.3",
     "mochawesome": "^7.1.3",
     "prettier": "3.0.3"
   }

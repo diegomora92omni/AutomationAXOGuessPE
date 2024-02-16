@@ -8,6 +8,19 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
+const faker = require('faker');
+
+Cypress.Commands.add('fillRegisterFormWithRandomData', () => {
+  const nombreAleatorio = faker.name.firstName();
+  const apellidoAleatorio = faker.name.lastName();
+  const emailAleatorio = faker.internet.email();
+
+  cy.get('#firstname').type(nombreAleatorio);
+  cy.get('#lastname').type(apellidoAleatorio);
+  cy.get('#email_address').type(emailAleatorio);
+  // Agrega aquí más campos si es necesario
+});
+
 // -- Custom Command to Get Initial Cart Count --
 //Este comando obtiene el valor inicial del contador del carrito de compras. Verifica si el contador está presente en la página y devuelve su valor numérico. Si el contador no está presente o está vacío, devuelve 0.
 Cypress.Commands.add('getInitialCartCount', () => {

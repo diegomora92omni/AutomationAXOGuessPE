@@ -36,7 +36,7 @@
                 // Rellenar el formulario de registro con los datos del usuario registrado
                 cy.get('#firstname').type('Juan')
                 cy.get('#lastname').type('Perez')
-                cy.get('#email_address').type(usuario.email)
+                cy.get('#email_address').type(usuario[0].email)
                 cy.get('#password').type(password1)
                 cy.get('#password-confirmation').type(password1)
                 // Asegúrate de ajustar los selectores según tu formulario

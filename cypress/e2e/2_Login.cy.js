@@ -49,7 +49,7 @@ describe('Test cases for Login flow', () => {
         cy.get('.message-error').should('exist')
         })
       // Test case #4: Verificar que permita realizar la recuperación de contraseña
-      it('LOG-004: Verify that it allows password recovery', () => {
+      it.only('LOG-004: Verify that it allows password recovery', () => {
         // Hacer clic en el botón "Iniciar sesión"
         cy.get('a.link-action__login').contains('Iniciar sesión').click({ force: true }); 
         // Hacer clic en el botón ¿Olvidaste tu contraseña?
@@ -80,7 +80,7 @@ describe('Test cases for Login flow', () => {
         cy.get('.column > p').should('exist').and('have.text','Usted ha cerrado la sesión e irá a su página de inicio en 5 segundos.')
     })      
     // Test case #6: Verificar que un usuario pueda cambiar su contraseña y loguearse nuevamente
-    it.only('LOG-006: Verify that a user can change his password and log in again.', () => {
+    it('LOG-006: Verify that a user can change his password and log in again.', () => {
         // Hacer clic en el botón "Iniciar sesión"
         cy.get('a.link-action__login').contains('Iniciar sesión').click({ force: true }); 
         // Llenar formulario de "Clientes registrados"

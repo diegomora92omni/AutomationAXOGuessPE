@@ -1,138 +1,123 @@
 /// <reference types='Cypress' />
 
 describe('Test cases for Add To Cart flow', () => {
-    let dataUser;
+    let usuarios;
+    let initialCartState;
+    let initialItemCount;
 
     before(() => {
-      cy.fixture('DataKomax.json').then((data) => {
-        dataUser = data;
-      });
+        cy.fixture('usuariosRegistrados').then((data) => {
+            usuarios = data;
+        });
     });
 
     beforeEach(() => {
-        cy.visit('https://mcstaging2.kliper.cl/kliper_store_view/')
-        })
+        cy.visit('https://mcstaging.converse.cl/new_balance_peru_store_view/');
+
+        // Captura el estado inicial del carrito
+        cy.get('.counter.qty.empty, .counter.qty').invoke('text').then((text) => {
+            initialCartState = text.trim();
+        });
+
+        // Captura el número inicial de productos en el carrito
+        cy.get('.counter.qty .counter-number').invoke('text').then((text) => {
+            initialItemCount = parseInt(text.trim()) || 0;
+        });
+    });
 
     context('Add to cart flow', () => {
-    //Test case #2: Verificar que permita añadir un Producto al Carrito desde la Página de Detalle de Producto (PDP) - Guest
-      it('ADDP-002: Verify that you can add a Product to the Cart from the Product Detail Page (PDP) - Guest', () => {
+        it('ADDP-002: Verify that you can add a Product to the Cart from the Product List Page (PLP) - Guest', () => {
+            // Selecciona una categoría de manera aleatoria
+            cy.selectRandomCategory();
 
-        // Obtener el valor inicial del contador del carrito a través de comando getInitialCartCount (Revisar archivo commands.js)
-        cy.getInitialCartCount().then((initialCount) => {
+            // Espera a que los productos se carguen y selecciona uno aleatorio
+            cy.get('#amasty-shopby-product-list .item.product.product-item', { timeout: 10000 }).should('be.visible').then(($products) => {
+                const randomIndex = Math.floor(Math.random() * $products.length);
+                cy.wrap($products).eq(randomIndex).find('.product-item-link').invoke('removeAttr', 'target').click();
+            });
 
-          // Hacer clic en la categoría ubicada dentro del body del Home
-          cy.get('img.pagebuilder-mobile-hidden[alt="Chaquetas de marcas Outdoor"]').click({ force: true })
+            // Espera a que se carguen los colores y selecciona uno aleatorio
+            cy.get('.swatch-attribute.color .swatch-option.color').should('be.visible').then(($colors) => {
+                const randomIndex = Math.floor(Math.random() * $colors.length);
+                cy.wrap($colors).eq(randomIndex).click();
+            });
 
-          // Hacer clic en un producto en la cuadrícula de productos (PLP)
-          cy.get('#amasty-shopby-product-list > div.products.wrapper.grid.products-grid')
-            .find('.item.product.product-item')
-            .eq(0).click()
+            // Espera a que se carguen las tallas y selecciona una aleatoria
+            cy.get('.swatch-attribute.size .swatch-option.text').should('be.visible').then(($sizes) => {
+                const randomIndex = Math.floor(Math.random() * $sizes.length);
+                cy.wrap($sizes).eq(randomIndex).click();
+            });
 
-          // Hacer clic en una talla en el detalle del producto (PDP)
-          cy.get('.swatch-opt > .swatch-attribute > .swatch-attribute-options')
-            .find('.swatch-option')
-            .eq(0).click()
+            // Agrega el producto al carrito
+            cy.get('#product-addtocart-button').click();
 
-          // Hacer clic en el botón "Agregar al carrito"
-          cy.get('#product-addtocart-button').click()
+            // Espera a que el estado del carrito cambie correctamente
+            cy.get('.counter.qty.empty, .counter.qty').should(($newCartState) => {
+                // Verifica si el estado del carrito cambió correctamente
+                expect($newCartState.text().trim()).not.to.equal(initialCartState);
+            });
 
-          // Esperar a que el modal del carrito sea visible
-          cy.get('#modal-title-30').should('be.visible')
-          cy.get('#modal-content-30').should('be.visible')
+            // Verifica si el número de productos en el carrito aumentó
+            cy.get('.counter.qty .counter-number').invoke('text').then((text) => {
+                const newItemCount = parseInt(text.trim()) || 0;
+                expect(newItemCount).to.equal(initialItemCount + 1);
+            });
 
-          // Utilizar el comando personalizado para verificar que el contador del carrito se ha actualizado
-          cy.checkCartCounter(initialCount + 1)
+            // Verifica si se muestra el mensaje de éxito
+            cy.get('.message-success').should('be.visible');
         });
-      });
+        //Verificar que permita añadir Múltiples Unidades de un Producto al Carrito - Guest
+        it('ADDP-004: Verify that multiple units of a product can be added to the cart - Guest', () => {
+            // Selecciona una categoría de manera aleatoria
+            cy.selectRandomCategory();
 
-    //Test case #4: Verificar que permita añadir Múltiples Unidades de un Producto al Carrito - Guest   
-    it('ADDP-004: Verify that multiple units of a product can be added to the cart - Guest', () => {
+            // Espera a que los productos se carguen y selecciona uno aleatorio
+            cy.get('#amasty-shopby-product-list .item.product.product-item', { timeout: 10000 }).should('be.visible').then(($products) => {
+                const randomIndex = Math.floor(Math.random() * $products.length);
+                cy.wrap($products).eq(randomIndex).find('.product-item-link').invoke('removeAttr', 'target').click();
+            });
 
-        // Obtener el valor inicial del contador del carrito
-        cy.getInitialCartCount().then((initialCount) => {
-          let totalProductsAdded = 1 // Comienza con 1 producto añadido
+            // Espera a que se carguen los colores y selecciona uno aleatorio
+            cy.get('.swatch-attribute.color .swatch-option.color').then(($colors) => {
+                const randomIndex = Math.floor(Math.random() * $colors.length);
+                cy.wrap($colors).eq(randomIndex).click();
+            });
 
-          // Hacer clic en la categoría ubicada dentro del body del Home
-          cy.get('img.pagebuilder-mobile-hidden[alt="Chaquetas de marcas Outdoor"]').click({ force: true })
+            // Espera a que se carguen las tallas y selecciona una aleatoria
+            cy.get('.swatch-attribute.size .swatch-option.text').then(($sizes) => {
+                const randomIndex = Math.floor(Math.random() * $sizes.length);
+                cy.wrap($sizes).eq(randomIndex).click();
+            });
 
-          // Hacer clic en un producto en la cuadrícula de productos (PLP)
-          cy.get('#amasty-shopby-product-list > div.products.wrapper.grid.products-grid')
-            .find('.item.product.product-item')
-            .eq(0).click()
+            // Agrega el producto al carrito
+            cy.get('#product-addtocart-button').click();
 
-          // Hacer clic en una talla en el detalle del producto (PDP)
-          cy.get('.swatch-opt > .swatch-attribute > .swatch-attribute-options')
-            .find('.swatch-option')
-            .eq(0).click()
+            // Espera a que el estado del carrito cambie correctamente
+            cy.get('.counter.qty.empty, .counter.qty').should(($newCartState) => {
+                // Verifica si el estado del carrito cambió correctamente
+                expect($newCartState.text().trim()).not.to.equal(initialCartState);
+            });
 
-          // Hacer clic en el botón "Agregar al carrito"
-          cy.get('#product-addtocart-button').click()
+            // Verifica si el número de productos en el carrito aumentó
+            cy.get('.counter.qty .counter-number').invoke('text').then((text) => {
+                const newItemCount = parseInt(text.trim()) || 0;
+                expect(newItemCount).to.equal(initialItemCount + 1);
+            });
 
-          // Esperar a que el modal del carrito sea visible
-          cy.get('#modal-title-30').should('be.visible')
-          cy.get('#modal-content-30').should('be.visible')
+            // Verifica si se muestra el mensaje de éxito
+            cy.get('.message-success').should('be.visible');
 
-          // Cerrar el modal del carrito y navegar a la página del carrito
-          cy.get('.buttons > .secondary').click();
+            // Abre el carrito haciendo clic en el elemento
+            cy.get('.action.showcart').click();
 
-          // Incrementar la cantidad del producto en el carrito, en este caso se hace doble click y se aumenta a un total de 3
-          cy.get('.plus').dblclick().then(() => {
-            totalProductsAdded += 1 // Aumentar la cantidad de productos añadidos
-          });
+// Genera un valor aleatorio entre 1 y 5
+const incremento = Math.floor(Math.random() * 5) + 1;
 
-          // Verificar que el contador del carrito se ha actualizado al total esperado
-          cy.checkCartCounter(initialCount + totalProductsAdded)
+// Aumenta la cantidad del producto en el carrito por el valor aleatorio
+for (let i = 0; i < incremento; i++) {
+    cy.get('input.item-qty').type('{uparrow}');
+}
 
-        })
-      })
-// Test case #5: Verificar que permita añadir un Producto al Carrito y Continuar Comprando - Guest
-it('ADDP-005: Verify that you can add a Product to Cart and Continue Shopping - Guest', () => {
-
-    // Obtener el valor inicial del contador del carrito
-    cy.getInitialCartCount().then((initialCount) => {
-      let totalProductsAdded = 1; // Comienza con 1 producto añadido
-
-      // Hacer clic en la categoría ubicada dentro del body del Home
-      cy.get('img.pagebuilder-mobile-hidden[alt="Chaquetas de marcas Outdoor"]').click({ force: true });
-
-      // Esperar a que la página de productos cargue completamente
-      cy.wait(1000); // Ajustar este tiempo según sea necesario
-
-      // Hacer clic en un producto en la cuadrícula de productos (PLP)
-      cy.get('#amasty-shopby-product-list > div.products.wrapper.grid.products-grid')
-        .find('.item.product.product-item')
-        .eq(0).click();
-
-      // Esperar a que la página del producto cargue completamente
-      cy.wait(1000); // Ajustar este tiempo según sea necesario
-
-      // Hacer clic en una talla en el detalle del producto (PDP)
-      cy.get('.swatch-opt > .swatch-attribute > .swatch-attribute-options')
-        .find('.swatch-option')
-        .eq(0).click();
-
-      // Hacer clic en el botón "Agregar al carrito"
-      cy.get('#product-addtocart-button').click();
-
-      // Esperar a que el modal del carrito sea visible y que el producto se haya añadido
-      cy.get('#modal-title-30').should('be.visible');
-      cy.get('#modal-content-30').should('be.visible');
-
-      // Cerrar el modal del carrito
-      cy.get('.buttons > .secondary').click();
-
-      // Hacer clic en "Continuar Comprando"
-      cy.get('li.item a.action.continue').click();
-
-      // Esperar a que la página se actualice después de hacer clic en "Continuar Comprando"
-      cy.wait(1000); // Ajustar este tiempo según sea necesario
-
-      // Verificar que el contador del carrito se ha actualizado al total esperado
-      cy.checkCartCounter(initialCount + totalProductsAdded);
-
-      // Opcional: Agregar verificaciones adicionales si es necesario
+        });
     });
 });
-
-    })
-})

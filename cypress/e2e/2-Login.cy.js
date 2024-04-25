@@ -11,7 +11,7 @@
         });
 
         beforeEach(() => {
-        cy.visit('https://mcstaging2.komaxchile.cl/guess_store_view')
+        cy.visit('https://mcstaging.komaxchile.cl/guess_peru_store_view/')
         })
     
         context('Login flow', () => {

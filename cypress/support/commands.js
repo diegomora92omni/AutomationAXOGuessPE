@@ -9,14 +9,56 @@
 // ***********************************************
 
 const faker = require('faker');
-import { generateRUT, generateRandomPhoneNumber } from './utils';
+import { generateRandomPhoneNumber } from './utils';
 
 // Variables para almacenar el estado inicial del carrito
 // y el número inicial de productos en el carrito
 let initialCartState;
 let initialItemCount;
 
-// -- Comando Personalizado para Llenar el Formulario de Registro con Datos Aleatorios --
+// cypress/support/commands.js
+
+// Comando para seleccionar un tipo de documento de forma aleatoria
+Cypress.Commands.add('selectDocumentType', () => {
+  cy.get('#type_identification').then(select => {
+    const options = select.find('option');
+    const randomIndex = Math.floor(Math.random() * options.length);
+    const randomValue = options.eq(randomIndex).val();
+    cy.get('#type_identification').select(randomValue);
+    return cy.wrap(randomValue); // Retorna el valor para su uso posterior
+  });
+});
+
+// Comando para generar un número de identificación basado en el tipo seleccionado
+Cypress.Commands.add('generateIdentification', (type) => {
+  let length;
+  if (type === '4') { // DNI
+    length = 8;
+  } else if (type === '7') { // Cédula de extranjería
+    length = Math.floor(Math.random() * (12 - 8 + 1)) + 8;
+  } else if (type === '10') { // Pasaporte
+    length = Math.floor(Math.random() * (12 - 9 + 1)) + 9;
+  }
+
+  let identification = '';
+  for (let i = 0; i < length; i++) {
+    identification += Math.floor(Math.random() * 10);
+  }
+  return cy.wrap(identification); // Retorna el número generado
+});
+
+// Comando Personalizado para Llenar el Campo de Fecha de Nacimiento con una Fecha Válida
+Cypress.Commands.add('fillDOBField', () => {
+  const currentYear = new Date().getFullYear();
+  const year = currentYear - 18 - Math.floor(Math.random() * 20); // Entre 18 y 37 años atrás.
+  const month = Math.floor(Math.random() * 12) + 1; // 1-12
+  const day = Math.floor(Math.random() * 28) + 1; // 1-28 para simplificar
+  const formattedDate = `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`;
+  
+  cy.get('input#dob').type(formattedDate, { force: true });
+});
+
+// Comando Personalizado para Llenar el Formulario de Registro con Datos Aleatorios
 Cypress.Commands.add('fillRegisterFormWithRandomData', () => {
   const nombreAleatorio = faker.name.firstName();
   const apellidoAleatorio = faker.name.lastName();
@@ -26,11 +68,6 @@ Cypress.Commands.add('fillRegisterFormWithRandomData', () => {
   cy.get('#lastname').type(apellidoAleatorio);
   cy.get('#is_subscribed').check();
 
-  cy.get('#email_address').type(emailAleatorio);
-  
-  // Llenar el campo RUT automáticamente
-  cy.fillRUT();
-
   // Llenar automáticamente el campo de fecha de nacimiento
   cy.fillDOBField();
 
@@ -39,35 +76,44 @@ Cypress.Commands.add('fillRegisterFormWithRandomData', () => {
   const generoAleatorio = generos[Math.floor(Math.random() * generos.length)];
   cy.get('#gender').select(generoAleatorio);
 
-  // Generar y llenar el campo de teléfono con un número aleatorio de 8 a 10 dígitos
+  // Generar y llenar el campo de teléfono con un número aleatorio que empiece por 9 y contenga 9 dígitos
   const telefonoAleatorio = generateRandomPhoneNumber();
   cy.get('#telefono').type(telefonoAleatorio);
-});
 
-// -- Comando Personalizado para Generar y Llenar el Campo RUT en creación de cuenta--
-Cypress.Commands.add('fillRUT', () => {
-  const rut = generateRUT();
-  cy.get('input#identification_number').type(rut);
-});
+  // Asegura que el valor seleccionado del desplegable no sea vacío
+  cy.get('#parent_type_identification').should($select => {
+    const value = $select.val();
+    expect(value).to.not.be.empty;
+  });
 
-// -- Comando Personalizado para Llenar el Campo de Fecha de Nacimiento con una Fecha Válida --
-Cypress.Commands.add('fillDOBField', () => {
-  const currentYear = new Date().getFullYear();
-  const year = currentYear - 18 - Math.floor(Math.random() * 20); // Entre 18 y 37 años atrás.
-  const month = Math.floor(Math.random() * 12) + 1; // 1-12
-  const day = Math.floor(Math.random() * 28) + 1; // 1-28 para simplificar
-  const formattedDate = `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
-  
-  cy.get('input#dob').type(formattedDate, { force: true });
+  // Nuevo: Seleccionar tipo de documento y llenar el número de identificación
+  cy.selectDocumentType().then(typeValue => {
+    cy.generateIdentification(typeValue).then(identificationNumber => {
+      cy.get('#identification_number').type(identificationNumber);
+    });
+  });
+
+  cy.get('#email_address').type(emailAleatorio);
+
 });
 
 // -- Comandos Personalizados para Selecciones Aleatorias en el Flujo de Agregar al Carrito --
 
-// Seleccionar una categoría aleatoria
+// Seleccionar una categoría aleatoria de "Mujer" o "Hombre"
 Cypress.Commands.add('selectRandomCategory', () => {
   cy.get('ul#ui-id-1 > li > a').then($links => {
-    const randomIndex = Math.floor(Math.random() * $links.length);
-    cy.wrap($links).eq(randomIndex).click({force: true});
+    // Filtrar solo los enlaces que contienen el texto "Mujer" o "Hombre"
+    const filteredLinks = $links.filter((index, link) => {
+      return link.textContent.includes('Mujer') || link.textContent.includes('Hombre');
+    });
+
+    // Asegurarse de que hay enlaces para elegir
+    if (filteredLinks.length > 0) {
+      const randomIndex = Math.floor(Math.random() * filteredLinks.length);
+      cy.wrap(filteredLinks).eq(randomIndex).click({force: true});
+    } else {
+      throw new Error('No se encontraron categorías de "Mujer" o "Hombre"');
+    }
   });
 });
 
@@ -136,10 +182,17 @@ Cypress.Commands.add('login', (email, password) => {
   cy.get('#send2').click();
 });
 
-// -- Comando Personalizado para Generar y Llenar el Campo RUT en checkout--
-Cypress.Commands.add('fillRUTco', () => {
-  const rut = generateRUT();
-  cy.get('input[name="custom_attributes[identification_number]"]').type(rut)
+// Comando Personalizado para seleccionar tipo de documento en checkout
+Cypress.Commands.add('selectDocumentTypeCO', () => {
+  // Usa un selector que dependa del atributo `name` para seleccionar el elemento `<select>`
+  cy.get('select[name="custom_attributes[type_identification]"]').then(select => {
+    const options = select.find('option');
+    const randomIndex = Math.floor(Math.random() * options.length);
+    const randomValue = options.eq(randomIndex).val();
+    // Utiliza el selector con el atributo `name` para seleccionar el valor aleatorio
+    cy.get('select[name="custom_attributes[type_identification]"]').select(randomValue);
+    return cy.wrap(randomValue); // Retorna el valor para su uso posterior
+  });
 });
 
 // Define el comando personalizado para generar y utilizar un número de teléfono aleatorio
@@ -168,4 +221,24 @@ Cypress.Commands.add('createAccount', (password) => {
 
   //Verificar mensaje de registro exitoso
   cy.get('.message-success').should('exist')
+});
+
+// Define el comando personalizado para seleccionar un método de envío aleatorio
+Cypress.Commands.add('selectRandomShippingMethod', () => {
+  cy.get('#checkout-shipping-method-load .table-checkout-shipping-method tbody tr.row').then($rows => {
+    // Asegurarse de que haya métodos de envío disponibles
+    const shippingMethods = $rows.find('input[type="radio"]:enabled');
+    const count = shippingMethods.length;
+
+    // Verificar que hay opciones disponibles
+    if (count > 0) {
+      const randomIndex = Math.floor(Math.random() * count);
+      const randomShippingMethod = shippingMethods.eq(randomIndex);
+
+      // Hacer clic en el método seleccionado aleatoriamente
+      randomShippingMethod.click();
+    } else {
+      throw new Error('No se encontraron métodos de envío habilitados.');
+    }
+  });
 });

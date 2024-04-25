@@ -1,11 +1,14 @@
 [
     {
-      "email": "dmma92+guess@hotmail.com",
-      "rut": "20288971-9",
+      "email": "dmma92+guesspe@hotmail.com",
+      "identificationType": "DNI",
+      "identificationNumber": "43243243",
       "password": "Pruebas123*"
     },
     {
-        "email": "dmma92+guess2@hotmail.com",
+        "email": "dmma92+guesspe2@hotmail.com",
+        "identificationType": "pasaporte",
+        "identificationNumber": "A13343321",
         "password": "Pruebas123*"
     }
   ]

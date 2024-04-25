@@ -11,7 +11,7 @@
       inlineAssets: true,
       saveAllAttempts: false,
     },
-    retries: 4,
+    retries: 2,
     defaultCommandTimeout: 5000,
     fixturesFolder: 'cypress/fixtures',
     supportFolder: 'cypress/support',

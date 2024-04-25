@@ -12,7 +12,7 @@ describe('Test cases for Cart flow', () => {
     });
 
     beforeEach(() => {
-        cy.visit('https://mcstaging2.komaxchile.cl/guess_store_view');
+        cy.visit('https://mcstaging.komaxchile.cl/guess_peru_store_view/');
 
         // Captura el estado inicial del carrito
         cy.get('.counter.qty.empty, .counter.qty').invoke('text').then((text) => {
@@ -39,34 +39,33 @@ describe('Test cases for Cart flow', () => {
                cy.wrap($products).eq(randomIndex).find('.product-item-link').invoke('removeAttr', 'target').click();
            });
 
-           // Espera a que se carguen los colores y selecciona uno aleatorio
-           cy.get('.swatch-attribute-options.clearfix .swatch-option.color').should('be.visible').then(($colors) => {
-               const randomIndex = Math.floor(Math.random() * $colors.length);
-               cy.wrap($colors).eq(randomIndex).click();
-           });
+            // Selecciona el contenedor de opciones de color específico
+            cy.get('.swatch-attribute[data-attribute-code="color_padre"][data-attribute-id="272"]')
+            .find('.swatch-option.color').then($colors => {
+            // Asegura que las opciones son visibles y selecciona una aleatoriamente
+            const availableColors = $colors.filter((i, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableColors.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableColors.length);
+            cy.wrap(availableColors).eq(randomIndex).click();
+            } else {
+            cy.log('No hay colores disponibles o visibles para seleccionar.');
+            }
+            });
 
-           // Espera a que se carguen las tallas y selecciona una aleatoria
-           cy.get('.swatch-select.guess_talla_ancha').then($select => {
-               // Obtiene todas las opciones menos la primera que es el placeholder
-               const $options = $select.find('option').not(':eq(0)');
-               // Elige un índice aleatorio entre las opciones disponibles
-               const randomIndex = Math.floor(Math.random() * $options.length);
-               // Obtiene el valor de la opción en el índice aleatorio
-               const randomValue = $options.eq(randomIndex).val();
-               // Selecciona la opción en el dropdown
-               cy.get('.swatch-select.guess_talla_ancha').select(randomValue);
-           });
+            cy.get('.size_tops .swatch-option.text').then($options => {
+            // Filtrar solo las opciones que están habilitadas
+            const availableOptions = $options.filter((index, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableOptions.length > 0) {
+            // Elige un índice aleatorio entre las opciones disponibles y habilitadas
+            const randomIndex = Math.floor(Math.random() * availableOptions.length);
+            // Realiza clic en la opción en el índice aleatorio
+            cy.wrap(availableOptions).eq(randomIndex).click({force: true});
+            } else {
+            // Manejar el caso en que no hay tallas disponibles
+            cy.log('No hay tallas disponibles para el color seleccionado.');
+            }
+            });  
 
-           cy.get('.swatch-select.guess_talla_larga').then($select => {
-               // Obtiene todas las opciones menos la primera que es el placeholder
-               const $options = $select.find('option').not(':eq(0)');
-               // Elige un índice aleatorio entre las opciones disponibles
-               const randomIndex = Math.floor(Math.random() * $options.length);
-               // Obtiene el valor de la opción en el índice aleatorio
-               const randomValue = $options.eq(randomIndex).val();
-               // Selecciona la opción en el dropdown
-               cy.get('.swatch-select.guess_talla_larga').select(randomValue);
-           });
            // Agrega el producto al carrito
            cy.get('#product-addtocart-button').click();
 
@@ -115,13 +114,13 @@ describe('Test cases for Cart flow', () => {
            cy.contains('p', 'Haga clic aquí para continuar comprando.').should('be.visible');
 
            // Verificar la presencia del párrafo y el enlace dentro de este
-           cy.contains('p', 'Haga clic').parent().contains('a', 'aquí').should('have.attr', 'href', 'https://mcstaging2.komaxchile.cl/guess_store_view/').should('be.visible');
+           cy.contains('p', 'Haga clic').parent().contains('a', 'aquí').should('have.attr', 'href', 'https://mcstaging.komaxchile.cl/guess_peru_store_view/').should('be.visible');
            
            // Hacer clic en el enlace con el texto "aquí"
            cy.contains('a', 'aquí').click();
 
            // Verifica que la URL actual incluya el path específico
-           cy.url().should('include', '/guess_store_view');
+           cy.url().should('include', '/guess_peru_store_view');
            
        });
 
@@ -140,34 +139,33 @@ describe('Test cases for Cart flow', () => {
                 cy.wrap($products).eq(randomIndex).find('.product-item-link').invoke('removeAttr', 'target').click();
             });
 
-            // Espera a que se carguen los colores y selecciona uno aleatorio
-            cy.get('.swatch-attribute-options.clearfix .swatch-option.color').should('be.visible').then(($colors) => {
-                const randomIndex = Math.floor(Math.random() * $colors.length);
-                cy.wrap($colors).eq(randomIndex).click();
+            // Selecciona el contenedor de opciones de color específico
+            cy.get('.swatch-attribute[data-attribute-code="color_padre"][data-attribute-id="272"]')
+            .find('.swatch-option.color').then($colors => {
+            // Asegura que las opciones son visibles y selecciona una aleatoriamente
+            const availableColors = $colors.filter((i, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableColors.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableColors.length);
+            cy.wrap(availableColors).eq(randomIndex).click();
+            } else {
+            cy.log('No hay colores disponibles o visibles para seleccionar.');
+            }
             });
 
-            // Espera a que se carguen las tallas y selecciona una aleatoria
-            cy.get('.swatch-select.guess_talla_ancha').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_ancha').select(randomValue);
+            cy.get('.size_tops .swatch-option.text').then($options => {
+            // Filtrar solo las opciones que están habilitadas
+            const availableOptions = $options.filter((index, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableOptions.length > 0) {
+            // Elige un índice aleatorio entre las opciones disponibles y habilitadas
+            const randomIndex = Math.floor(Math.random() * availableOptions.length);
+            // Realiza clic en la opción en el índice aleatorio
+            cy.wrap(availableOptions).eq(randomIndex).click({force: true});
+            } else {
+            // Manejar el caso en que no hay tallas disponibles
+            cy.log('No hay tallas disponibles para el color seleccionado.');
+            }
             });
 
-            cy.get('.swatch-select.guess_talla_larga').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_larga').select(randomValue);
-            });
             // Agrega el producto al carrito
             cy.get('#product-addtocart-button').click();
 
@@ -223,34 +221,33 @@ describe('Test cases for Cart flow', () => {
                 cy.wrap($products).eq(randomIndex).find('.product-item-link').invoke('removeAttr', 'target').click();
             });
 
-            // Espera a que se carguen los colores y selecciona uno aleatorio
-            cy.get('.swatch-attribute-options.clearfix .swatch-option.color').should('be.visible').then(($colors) => {
-                const randomIndex = Math.floor(Math.random() * $colors.length);
-                cy.wrap($colors).eq(randomIndex).click();
+            // Selecciona el contenedor de opciones de color específico
+            cy.get('.swatch-attribute[data-attribute-code="color_padre"][data-attribute-id="272"]')
+            .find('.swatch-option.color').then($colors => {
+            // Asegura que las opciones son visibles y selecciona una aleatoriamente
+            const availableColors = $colors.filter((i, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableColors.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableColors.length);
+            cy.wrap(availableColors).eq(randomIndex).click();
+            } else {
+            cy.log('No hay colores disponibles o visibles para seleccionar.');
+            }
             });
 
-            // Espera a que se carguen las tallas y selecciona una aleatoria
-            cy.get('.swatch-select.guess_talla_ancha').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_ancha').select(randomValue);
+            cy.get('.size_tops .swatch-option.text').then($options => {
+            // Filtrar solo las opciones que están habilitadas
+            const availableOptions = $options.filter((index, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableOptions.length > 0) {
+            // Elige un índice aleatorio entre las opciones disponibles y habilitadas
+            const randomIndex = Math.floor(Math.random() * availableOptions.length);
+            // Realiza clic en la opción en el índice aleatorio
+            cy.wrap(availableOptions).eq(randomIndex).click({force: true});
+            } else {
+            // Manejar el caso en que no hay tallas disponibles
+            cy.log('No hay tallas disponibles para el color seleccionado.');
+            }
             });
 
-            cy.get('.swatch-select.guess_talla_larga').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_larga').select(randomValue);
-            });
             // Agrega el producto al carrito
             cy.get('#product-addtocart-button').click();
 
@@ -309,36 +306,35 @@ describe('Test cases for Cart flow', () => {
                 cy.wrap($products).eq(randomIndex).find('.product-item-link').invoke('removeAttr', 'target').click();
             });
 
-            // Espera a que se carguen los colores y selecciona uno aleatorio
-            cy.get('.swatch-attribute-options.clearfix .swatch-option.color').should('be.visible').then(($colors) => {
-                const randomIndex = Math.floor(Math.random() * $colors.length);
-                cy.wrap($colors).eq(randomIndex).click();
+            // Selecciona el contenedor de opciones de color específico
+            cy.get('.swatch-attribute[data-attribute-code="color_padre"][data-attribute-id="272"]')
+            .find('.swatch-option.color').then($colors => {
+            // Asegura que las opciones son visibles y selecciona una aleatoriamente
+            const availableColors = $colors.filter((i, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableColors.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableColors.length);
+            cy.wrap(availableColors).eq(randomIndex).click();
+            } else {
+            cy.log('No hay colores disponibles o visibles para seleccionar.');
+            }
             });
 
-            // Espera a que se carguen las tallas y selecciona una aleatoria
-            cy.get('.swatch-select.guess_talla_ancha').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_ancha').select(randomValue);
-            });
+            cy.get('.size_tops .swatch-option.text').then($options => {
+            // Filtrar solo las opciones que están habilitadas
+            const availableOptions = $options.filter((index, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableOptions.length > 0) {
+            // Elige un índice aleatorio entre las opciones disponibles y habilitadas
+            const randomIndex = Math.floor(Math.random() * availableOptions.length);
+            // Realiza clic en la opción en el índice aleatorio
+            cy.wrap(availableOptions).eq(randomIndex).click({force: true});
+            } else {
+            // Manejar el caso en que no hay tallas disponibles
+            cy.log('No hay tallas disponibles para el color seleccionado.');
+            }
+            }); 
 
-            cy.get('.swatch-select.guess_talla_larga').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_larga').select(randomValue);
-            });
-            // Agrega el producto al carrito
-            cy.get('#product-addtocart-button').click();
+           // Agrega el producto al carrito
+           cy.get('#product-addtocart-button').click();
 
             cy.wait(5000)
 
@@ -401,36 +397,35 @@ describe('Test cases for Cart flow', () => {
                 cy.wrap($products).eq(randomIndex).find('.product-item-link').invoke('removeAttr', 'target').click();
             });
 
-            // Espera a que se carguen los colores y selecciona uno aleatorio
-            cy.get('.swatch-attribute-options.clearfix .swatch-option.color').should('be.visible').then(($colors) => {
-                const randomIndex = Math.floor(Math.random() * $colors.length);
-                cy.wrap($colors).eq(randomIndex).click();
+            // Selecciona el contenedor de opciones de color específico
+            cy.get('.swatch-attribute[data-attribute-code="color_padre"][data-attribute-id="272"]')
+            .find('.swatch-option.color').then($colors => {
+            // Asegura que las opciones son visibles y selecciona una aleatoriamente
+            const availableColors = $colors.filter((i, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableColors.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableColors.length);
+            cy.wrap(availableColors).eq(randomIndex).click();
+            } else {
+            cy.log('No hay colores disponibles o visibles para seleccionar.');
+            }
             });
 
-            // Espera a que se carguen las tallas y selecciona una aleatoria
-            cy.get('.swatch-select.guess_talla_ancha').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_ancha').select(randomValue);
-            });
+            cy.get('.size_tops .swatch-option.text').then($options => {
+            // Filtrar solo las opciones que están habilitadas
+            const availableOptions = $options.filter((index, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
+            if (availableOptions.length > 0) {
+            // Elige un índice aleatorio entre las opciones disponibles y habilitadas
+            const randomIndex = Math.floor(Math.random() * availableOptions.length);
+            // Realiza clic en la opción en el índice aleatorio
+            cy.wrap(availableOptions).eq(randomIndex).click({force: true});
+            } else {
+            // Manejar el caso en que no hay tallas disponibles
+            cy.log('No hay tallas disponibles para el color seleccionado.');
+            }
+            }); 
 
-            cy.get('.swatch-select.guess_talla_larga').then($select => {
-                // Obtiene todas las opciones menos la primera que es el placeholder
-                const $options = $select.find('option').not(':eq(0)');
-                // Elige un índice aleatorio entre las opciones disponibles
-                const randomIndex = Math.floor(Math.random() * $options.length);
-                // Obtiene el valor de la opción en el índice aleatorio
-                const randomValue = $options.eq(randomIndex).val();
-                // Selecciona la opción en el dropdown
-                cy.get('.swatch-select.guess_talla_larga').select(randomValue);
-            });
-            // Agrega el producto al carrito
-            cy.get('#product-addtocart-button').click();
+           // Agrega el producto al carrito
+           cy.get('#product-addtocart-button').click();
 
             cy.wait(5000)
 

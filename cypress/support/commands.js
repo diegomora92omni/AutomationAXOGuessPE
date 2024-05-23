@@ -242,3 +242,15 @@ Cypress.Commands.add('selectRandomShippingMethod', () => {
     }
   });
 });
+
+Cypress.Commands.add('selectRandomValidOption', { prevSubject: 'element' }, ($select) => {
+  // Asumiendo que el placeholder tiene valor "0" y que las opciones no seleccionables están deshabilitadas
+  const $options = $select.find('option:not(:disabled)').not('[value="0"]');
+  if ($options.length > 0) {
+      const randomOptionIndex = Math.floor(Math.random() * $options.length);
+      const randomValue = $options.eq(randomOptionIndex).val();
+      cy.wrap($select).select(randomValue);
+  } else {
+      cy.log('No hay opciones válidas disponibles para seleccionar.');
+  }
+});

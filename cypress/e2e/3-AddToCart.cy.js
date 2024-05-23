@@ -57,19 +57,17 @@ describe('Test cases for Add To Cart flow', () => {
 
             cy.wait(5000)
 
-            cy.get('.size_tops .swatch-option.text').then($options => {
-            // Filtrar solo las opciones que están habilitadas
-            const availableOptions = $options.filter((index, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
-            if (availableOptions.length > 0) {
-            // Elige un índice aleatorio entre las opciones disponibles y habilitadas
-            const randomIndex = Math.floor(Math.random() * availableOptions.length);
-            // Realiza clic en la opción en el índice aleatorio
-            cy.wrap(availableOptions).eq(randomIndex).click({force: true});
-            } else {
-            // Manejar el caso en que no hay tallas disponibles
-            cy.log('No hay tallas disponibles para el color seleccionado.');
-            }
-            });  
+            cy.get('.swatch-select.size_tops').then($selects => {
+                if ($selects.length > 0) {
+                    const randomSelectIndex = Math.floor(Math.random() * $selects.length);
+                    const $randomSelect = $selects.eq(randomSelectIndex);
+    
+                    // Paso 2: Usa el comando personalizado para seleccionar una opción válida dentro del <select> elegido
+                    cy.wrap($randomSelect).selectRandomValidOption();
+                } else {
+                    cy.log('No se encontraron elementos <select> para seleccionar.');
+                }
+            });
 
             cy.wait(5000)
 
@@ -374,19 +372,17 @@ describe('Test cases for Add To Cart flow', () => {
 
             cy.wait(5000)
 
-            cy.get('.size_tops .swatch-option.text').then($options => {
-            // Filtrar solo las opciones que están habilitadas
-            const availableOptions = $options.filter((index, el) => Cypress.$(el).is(':visible') && !Cypress.$(el).hasClass('disabled'));
-            if (availableOptions.length > 0) {
-            // Elige un índice aleatorio entre las opciones disponibles y habilitadas
-            const randomIndex = Math.floor(Math.random() * availableOptions.length);
-            // Realiza clic en la opción en el índice aleatorio
-            cy.wrap(availableOptions).eq(randomIndex).click({force: true});
-            } else {
-            // Manejar el caso en que no hay tallas disponibles
-            cy.log('No hay tallas disponibles para el color seleccionado.');
-            }
-            });  
+            cy.get('.swatch-select.size_tops').then($selects => {
+                if ($selects.length > 0) {
+                    const randomSelectIndex = Math.floor(Math.random() * $selects.length);
+                    const $randomSelect = $selects.eq(randomSelectIndex);
+    
+                    // Paso 2: Usa el comando personalizado para seleccionar una opción válida dentro del <select> elegido
+                    cy.wrap($randomSelect).selectRandomValidOption();
+                } else {
+                    cy.log('No se encontraron elementos <select> para seleccionar.');
+                }
+            }); 
 
             // Agrega el producto al carrito
             cy.get('button[title="Agregar al Carrito"]').filter(':visible').first().click();
@@ -398,6 +394,9 @@ describe('Test cases for Add To Cart flow', () => {
                 // Verifica si el estado del carrito cambió correctamente
                 expect($newCartState.text().trim()).not.to.equal(initialCartState);
             });
+
+            cy.get('.message-success').should('exist')
+
 
             // Verifica si el número de productos en el carrito aumentó
             cy.get('.counter.qty .counter-number').invoke('text').then((text) => {
